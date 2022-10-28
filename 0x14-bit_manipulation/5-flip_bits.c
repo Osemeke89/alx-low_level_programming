@@ -1,17 +1,22 @@
-#include <stdio.h>
-#include <stdlib.h>
+#include "main.h"
 
 /**
- * flip_bits - returns the difference of bits between two numbers
- * @n: number one
- * @m: number two
- * Return: (Success)
+ * flip_bits - Counts the number of bits needed to be
+ *             flipped to get from one number to another.
+ * @n: The number.
+ * @m: The number to flip n to.
+ *
+ * Return: The necessary number of bits to flip to get from n to m.
  */
-
 unsigned int flip_bits(unsigned long int n, unsigned long int m)
 {
-	unsigned int difference = m ^ n;
-	while (difference)
-		difference &= (difference - 1);
-	return difference;
+	unsigned long int xor = n ^ m, bits = 0;
+
+	while (xor > 0)
+	{
+		bits += (xor & 1);
+		xor >>= 1;
+	}
+
+	return (bits);
 }
