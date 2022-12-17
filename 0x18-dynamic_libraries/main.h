@@ -1,6 +1,3 @@
-#ifndef _HOLBERTON_H_
-#define _HOLBERTNO_H_
-
 #include <stdio.h>
 #include <stdlib.h>
 
