@@ -1,51 +1,66 @@
 #include "hash_tables.h"
+#include <string.h>
+#include <stdlib.h>
+
 /**
-* hash_table_set - adds an element to a hash table
-* @ht: the table you want to add to
-* @key: the key
-* @value: the value
-* Return: 1 on success, 0 otherwise
-*/
+ * hash_table_set - sets a hash table key value pair in hash table
+ * @ht: hash table to set in
+ * @key: key to generate hash value and index off
+ * @value: value to set as hash_node's value
+ *
+ * Return: (1) success, (0) failure
+ */
 int hash_table_set(hash_table_t *ht, const char *key, const char *value)
 {
-	unsigned long int index;
-	hash_node_t *new = NULL, *temp = NULL;
+	unsigned long int key_i = 0;
+	char *val_copy = NULL, *key_copy = NULL;
+	hash_node_t *new_node = NULL, *temp_node = NULL;
 
-	if (key == NULL || key == '\0' || value == NULL || ht == NULL)
+	if (!ht || !key || !value)
+		return (0);
+	else if (strlen(key) == 0)
+		return (0);
+	val_copy = strdup(value);
+	if (!val_copy)
+		return (0);
+	key_copy = strdup(key);
+	if (!key_copy)
 	{
+		free(val_copy);
 		return (0);
 	}
-	index = key_index((const unsigned char *)key, (*ht).size);
-	temp = (*ht).array[index];
-	while (temp != NULL)
+	new_node = malloc(sizeof(hash_node_t));
+	if (!new_node)
 	{
-		if (strcmp((*temp).key, key) == 0)
+		free(key_copy);
+		free(val_copy);
+		return (0);
+	}
+	new_node->key = key_copy;
+	new_node->value = val_copy;
+	new_node->next = NULL;
+	key_i = key_index((unsigned char *)key, ht->size);
+	/* COLLISION OCCURED */
+	if ((ht->array)[key_i] != NULL)
+	{
+		temp_node = (ht->array)[key_i];
+		while(temp_node)
 		{
-			free((*temp).value);
-			(*temp).value = strdup(value);
-			return (1);
+			if (strcmp(temp_node->key, key_copy) == 0)
+			{
+				free(ht->array[key_i]->value);
+				ht->array[key_i]->value = val_copy;
+				free(key_copy);
+				free(new_node);
+				return (1);
+			}
+			temp_node = temp_node->next;
 		}
-		temp = (*temp).next;
+		temp_node = (ht->array)[key_i];
+		new_node->next = temp_node;
+		(ht->array)[key_i] = new_node;
 	}
-	new = malloc(sizeof(hash_node_t));
-	if (!new)
-	{
-		return (0);
-	}
-	(*new).key = strdup(key);
-	if (!(*new).key)
-	{
-		free(new);
-		return (0);
-	}
-	(*new).value = strdup(value);
-	if (!(*new).value)
-	{
-		free((*new).key);
-		free(new);
-		return (0);
-	}
-	(*new).next = (*ht).array[index];
-	(*ht).array[index] = new;
+	else
+		(ht->array)[key_i] = new_node;
 	return (1);
 }
